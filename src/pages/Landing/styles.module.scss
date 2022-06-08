@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  .action {
+    position: relative;
+    > div {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  .title {
+    margin: 13rem 0 2rem 0;
+    font-size: 5rem;
+    text-transform: uppercase;
+    color: white;
+    letter-spacing: 15px;
+  }
+  .bomb {
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 600px;
+    z-index: -1;
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
