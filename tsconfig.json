@@ -13,7 +13,10 @@
     "baseUrl": ".",
     "paths": {
       "*": ["*", "src/*"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "mini-signals": [
+        "./node_modules/resource-loader/typings/mini-signals.d.ts"
+      ]
     }
   },
   "include": ["src/**/*"],
