@@ -9,7 +9,15 @@
     "sourceMap": true,
     "target": "esnext",
     "allowJs": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["*", "src/*"],
+      "src/*": ["./src/*"],
+      "mini-signals": [
+        "./node_modules/resource-loader/typings/mini-signals.d.ts"
+      ]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

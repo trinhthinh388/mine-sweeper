@@ -1,0 +1,49 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  > canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+  .action {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    > * {
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: black;
+      letter-spacing: 2px;
+    }
+  }
+  .title {
+    margin: 17rem 0 2rem 0;
+    font-size: 5rem;
+    text-transform: uppercase;
+    color: black;
+    letter-spacing: 15px;
+  }
+  .bomb {
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 600px;
+    z-index: -1;
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

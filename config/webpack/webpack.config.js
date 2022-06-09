@@ -2,7 +2,7 @@
 const path = require('path');
 const HTMLWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-// const CopyPlugin = require('copy-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -26,6 +26,11 @@ const defaultConfig = {
     },
   },
   resolve: {
+    modules: [
+      path.resolve(__dirname, '../../src'),
+      path.resolve(__dirname, '../../public'),
+      'node_modules',
+    ],
     extensions: ['.ts', '.tsx', '.scss', '.js', '.jsx'],
   },
   module: {
@@ -110,6 +115,10 @@ const defaultConfig = {
           },
         ],
       },
+      {
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        type: 'asset/resource',
+      },
     ],
   },
   plugins: [
@@ -122,9 +131,9 @@ const defaultConfig = {
       filename: isProd ? '[name].[hash].css' : '[name].css',
       chunkFilename: isProd ? '[id].[hash].css' : '[id].css',
     }),
-    // new CopyPlugin({
-    //   patterns: [{ from: 'public', to: '' }],
-    // }),
+    new CopyPlugin({
+      patterns: [{ from: 'public', to: '' }],
+    }),
   ],
 };
 
