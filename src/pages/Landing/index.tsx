@@ -1,4 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTypedDispatch } from 'redux/helpers';
+import { getMineMatrix } from 'redux/actions';
 // Styles
 import styles from './styles.module.scss';
 
@@ -6,10 +9,23 @@ import styles from './styles.module.scss';
 import { Button } from 'components';
 
 const Landing: React.FC = () => {
+  const navigator = useNavigate();
+  const dispatch = useTypedDispatch();
+  const [isPending, startTransition] = React.useTransition();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [showDifficulty, setShow] = React.useState<boolean>(false);
 
   const onPlayClick = () => setShow(prev => !prev);
+
+  const toPlayground = (mode: 'easy' | 'hard') => () => {
+    navigator(`/playground?mode=${mode}`);
+  };
+
+  const onModeClick = (mode: 'easy' | 'hard') => () => {
+    startTransition(() => {
+      dispatch(getMineMatrix(mode, toPlayground(mode)));
+    });
+  };
 
   return (
     <div ref={containerRef} className={styles.container}>
@@ -22,10 +38,11 @@ const Landing: React.FC = () => {
         {showDifficulty && (
           <>
             <h2>Difficulty</h2>
-            <Button>Easy</Button>
-            <Button>Hard</Button>
+            <Button onClick={onModeClick('easy')}>Easy</Button>
+            <Button onClick={onModeClick('hard')}>Hard</Button>
           </>
         )}
+        {isPending && <h1>THINHMEO</h1>}
       </div>
     </div>
   );
