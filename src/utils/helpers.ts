@@ -5,3 +5,8 @@ export const mergeClassname = (...args: (string | undefined)[]): string => {
   });
   return cleanClasses.join('');
 };
+
+export const generateSearchParams = (argObj: Record<string, string>) => {
+  const searchParams = new URLSearchParams(argObj);
+  return searchParams.toString();
+};
