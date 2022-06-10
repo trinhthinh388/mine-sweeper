@@ -1,4 +1,4 @@
-import { MineMatrix } from 'models';
+import { MatrixMode, MineMatrix } from 'models';
 import { MatrixActions } from '../types';
 import { Dispatch } from 'redux';
 import { fetchMineMatrix } from 'api';
@@ -16,7 +16,7 @@ const getMineMatrixFail = () => ({
   type: MatrixActions.FETCH_MATRIX_FAIL,
 });
 export const getMineMatrix =
-  (mode: 'easy' | 'hard', callback = () => {}) =>
+  (mode: MatrixMode, callback = () => {}) =>
   async (dispatch: Dispatch) => {
     try {
       dispatch(requestGetMineMatrix());

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTypedDispatch } from 'redux/helpers';
 import { getMineMatrix } from 'redux/actions';
+import { MatrixMode } from 'src/models';
 // Styles
 import styles from './styles.module.scss';
 
@@ -17,11 +18,11 @@ const Landing: React.FC = () => {
 
   const onPlayClick = () => setShow(prev => !prev);
 
-  const toPlayground = (mode: 'easy' | 'hard') => () => {
+  const toPlayground = (mode: MatrixMode) => () => {
     navigator(`/playground?mode=${mode}`);
   };
 
-  const onModeClick = (mode: 'easy' | 'hard') => () => {
+  const onModeClick = (mode: MatrixMode) => () => {
     startTransition(() => {
       dispatch(getMineMatrix(mode, toPlayground(mode)));
     });
@@ -38,8 +39,8 @@ const Landing: React.FC = () => {
         {showDifficulty && (
           <>
             <h2>Difficulty</h2>
-            <Button onClick={onModeClick('easy')}>Easy</Button>
-            <Button onClick={onModeClick('hard')}>Hard</Button>
+            <Button onClick={onModeClick(MatrixMode.EASY)}>Easy</Button>
+            <Button onClick={onModeClick(MatrixMode.HARD)}>Hard</Button>
           </>
         )}
         {isPending && <h1>THINHMEO</h1>}

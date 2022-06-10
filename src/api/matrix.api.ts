@@ -1,25 +1,15 @@
-import { MineMatrix } from 'models';
+import { MatrixMode, MineMatrix } from 'models';
+import { MATRIX_CONFIGS } from 'constant';
 
 // Utils
 import { generateSearchParams } from 'utils/helpers';
 
 const ENDPOINT = 'https://tiki-minesweeper.herokuapp.com/getMines';
 
-const MODE = {
-  easy: {
-    size: '9',
-    mines: '10',
-  },
-  hard: {
-    size: '16',
-    mines: '40',
-  },
-};
-
 export const fetchMineMatrix = async (
-  mode: 'easy' | 'hard'
+  mode: MatrixMode
 ): Promise<MineMatrix | null> => {
-  const params = generateSearchParams(MODE[mode]);
+  const params = generateSearchParams(MATRIX_CONFIGS[mode]);
   const resp = await fetch(`${ENDPOINT}?${params.toString()}`);
   const json = await resp.json();
   if (typeof json === 'object' && json.data) return json.data;
