@@ -29,7 +29,7 @@ module.exports = {
     // Eslint
     'no-undef': 'error',
     'max-depth': ['error', { max: 3 }],
-    'max-statements': ['error', { max: 20 }],
+    'max-statements': ['error', { max: 30 }],
     complexity: 'error',
     'max-params': ['error', { max: 4 }],
     'max-nested-callbacks': ['error', { max: 3 }],

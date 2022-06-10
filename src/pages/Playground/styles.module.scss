@@ -1,0 +1,54 @@
+.container {
+  padding: 3rem;
+
+  .gridContainer {
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+
+    &.hardGrid {
+      width: 800px;
+      height: 800px;
+    }
+  }
+  .taskbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+
+    .face {
+      width: 38px;
+      height: 38px;
+      margin: 0 3rem;
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    .stats {
+      display: flex;
+      width: 8rem;
+      padding: 0 0.7rem 0 0;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      box-shadow: -5px 0 0 0 #111111, 5px 0 0 0 #111111, 0 -5px 0 0 #111111,
+        0 5px 0 0 #111111;
+      .icon {
+        width: 48px;
+        height: 48px;
+        img {
+          width: auto;
+          height: 100%;
+        }
+      }
+
+      .value {
+        font-size: 2rem;
+        margin-top: 0.3rem;
+      }
+    }
+  }
+}
