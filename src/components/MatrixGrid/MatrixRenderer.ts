@@ -300,8 +300,9 @@ export class MatrixRenderer {
         // Events
         sprite.on('pointerover', onSpriteHover(sprite));
         sprite.on('pointerout', onSpriteOut(sprite));
-        sprite.on('pointerup', onSpriteLeftClick(sprite, i, j));
-        sprite.on('rightup', onSpriteRightClick(sprite));
+        sprite.on('click', onSpriteLeftClick(sprite, i, j));
+        sprite.on('touchend', onSpriteLeftClick(sprite, i, j));
+        sprite.on('rightclick', onSpriteRightClick(sprite));
         row.push(sprite);
       }
       this.tileSprites.push(row);

@@ -80,6 +80,10 @@ const Playground: React.FC = () => {
       face: 'smile',
       spendTime: 0,
       status: undefined,
+      remainBombs:
+        mode === MatrixMode.EASY
+          ? MATRIX_CONFIGS[mode].mines
+          : MATRIX_CONFIGS[MatrixMode.HARD].mines,
     }));
     clearInterval(intervalId.current);
     dispatch(
