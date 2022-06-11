@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTypedDispatch } from 'redux/helpers';
+import { useTypedDispatch, useTypedSelector } from 'redux/helpers';
 import { getMineMatrix } from 'redux/actions';
 import { MatrixMode } from 'src/models';
 // Styles
@@ -13,6 +13,7 @@ const Landing: React.FC = () => {
   const navigator = useNavigate();
   const dispatch = useTypedDispatch();
   const [isPending, startTransition] = React.useTransition();
+  const isLoading = useTypedSelector(state => state.matrix.loading);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [showDifficulty, setShow] = React.useState<boolean>(false);
 
@@ -35,15 +36,31 @@ const Landing: React.FC = () => {
       </h1>
 
       <div className={styles.action}>
-        {!showDifficulty && <Button onClick={onPlayClick}>Play!</Button>}
-        {showDifficulty && (
+        {!isLoading && !isPending && !showDifficulty && (
+          <Button disabled={isLoading || isPending} onClick={onPlayClick}>
+            Play!
+          </Button>
+        )}
+        {!isLoading && !isPending && showDifficulty && (
           <>
             <h2>Difficulty</h2>
-            <Button onClick={onModeClick(MatrixMode.EASY)}>Easy</Button>
-            <Button onClick={onModeClick(MatrixMode.HARD)}>Hard</Button>
+            <Button
+              disabled={isLoading || isPending}
+              onClick={onModeClick(MatrixMode.EASY)}
+            >
+              Easy
+            </Button>
+            <Button
+              disabled={isLoading || isPending}
+              onClick={onModeClick(MatrixMode.HARD)}
+            >
+              Hard
+            </Button>
           </>
         )}
-        {isPending && <h1>THINHMEO</h1>}
+        {(isLoading || isPending) && (
+          <h1 className={styles.loadingText}>Loading...</h1>
+        )}
       </div>
     </div>
   );

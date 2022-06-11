@@ -21,3 +21,5 @@ export const MATRIX_COLORS: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, number> = {
   7: 0x000000,
   8: 0x808080,
 };
+
+export * from './routes';

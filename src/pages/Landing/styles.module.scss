@@ -11,6 +11,10 @@
     left: 0;
     z-index: -1;
   }
+
+  .loadingText {
+    font-size: 2rem;
+  }
   .action {
     position: relative;
     display: flex;

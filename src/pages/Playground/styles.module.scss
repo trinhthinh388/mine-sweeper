@@ -1,6 +1,17 @@
 .container {
   padding: 3rem;
 
+  .result {
+    display: flex;
+    flex-direction: column;
+    font-size: 3rem;
+    text-align: center;
+    margin: 3rem auto;
+    > span {
+      font-size: 1.5rem;
+    }
+  }
+
   .gridContainer {
     width: 500px;
     height: 500px;
