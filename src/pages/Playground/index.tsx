@@ -4,6 +4,7 @@ import { MatrixMode } from 'models';
 import { MATRIX_CONFIGS, RoutePath } from 'constant';
 import { useTypedDispatch, useTypedSelector } from 'redux/helpers';
 import { getMineMatrix } from 'redux/actions';
+import { mergeClassname } from 'utils/helpers';
 
 // Styles
 import styles from './styles.module.scss';
@@ -164,15 +165,15 @@ const Playground: React.FC = () => {
       )}
       <Modal show={!!gameState.status}>
         {gameState.status === 'lose' && (
-          <h1 className={styles.result}>
-            Lose! <span>Uh oh! You stepped on a bomb.</span>
+          <h1 className={mergeClassname(styles.result, styles.lose)}>
+            Lose! <span>Uh oh! You clicked a bomb.</span>
           </h1>
         )}
         {gameState.status === 'win' && (
-          <h1 className={styles.result}>
+          <h1 className={mergeClassname(styles.result, styles.win)}>
             Win!
             <span>
-              You have unfolded all the valid tiles in{' '}
+              You have unfolded all valid tiles in{' '}
               {parseTime(gameState.spendTime)}.
             </span>
           </h1>
