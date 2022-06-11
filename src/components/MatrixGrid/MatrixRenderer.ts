@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable complexity */
 import {
   Application,
@@ -14,7 +15,8 @@ const BACKGROUND_COLOR = 0x000000;
 const GUTTER = 1;
 const TEXT_OFFSET = 6;
 
-export type ExplodeHandler = (sprite: Sprite) => void;
+export type EventHandler<P = [undefined?], T = void> = (...args: P[]) => T;
+export type MatrixEvent = 'bombclick' | 'win' | 'flag' | 'firstclick';
 
 export class MatrixRenderer {
   private app: Application;
@@ -38,18 +40,25 @@ export class MatrixRenderer {
    * Configs
    */
   private configs: { mines: number; size: number };
+  private remainBombs: number;
+  private remainValidTile: number;
   private mineMatrix: MineMatrix;
   private containerSize: number;
+  private containerRef: Element;
   private tileSprites: Array<Array<Sprite>> = [];
   private mineSprites: Array<Array<Sprite | number>> = [];
   private textSprites: Array<Array<Text | null>> = [];
 
   // Handlers
-  private explodeHandlers: Array<ExplodeHandler> = [];
+  private explodeHandlers: Array<EventHandler> = [];
+  private flagHandlers: Array<EventHandler<'flag' | 'unflag'>> = [];
+  private winHandlers: Array<EventHandler> = [];
+  private firstClickHandlers: Array<EventHandler> = [];
 
   constructor(mode: MatrixMode, containerEl: Element, _mineMatrix: MineMatrix) {
     const { width, height } = containerEl.getBoundingClientRect();
     this.containerSize = width;
+    this.containerRef = containerEl;
     this.configs = MATRIX_CONFIGS[mode];
 
     // Application
@@ -73,6 +82,9 @@ export class MatrixRenderer {
 
     // Configs
     this.mineMatrix = _mineMatrix;
+    this.remainBombs = this.configs.mines;
+    this.remainValidTile =
+      this.configs.size * this.configs.size - this.configs.mines;
     for (let i = 0; i < this.configs.size; i++) {
       const row: Array<number> = [];
       const rowTextSprite: Array<null> = [];
@@ -95,6 +107,8 @@ export class MatrixRenderer {
     this.increaseTileWeight = this.increaseTileWeight.bind(this);
     this.calculateNearbyBombs = this.calculateNearbyBombs.bind(this);
     this.unfoldValidTile = this.unfoldValidTile.bind(this);
+    this.isBomb = this.isBomb.bind(this);
+    this.destroy = this.destroy.bind(this);
   }
 
   private unfoldValidTile(x: number, y: number) {
@@ -108,6 +122,7 @@ export class MatrixRenderer {
       this.mineSprites[x][y] > 0
     ) {
       this.mineSprites[x][y] = -1;
+      this.remainValidTile--;
       this.tileSprites[x][y].interactive = false;
       this.tileSprites[x][y].texture = this.selectedTileTexture;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -124,6 +139,7 @@ export class MatrixRenderer {
     }
 
     this.mineSprites[x][y] = -1;
+    this.remainValidTile--;
     this.tileSprites[x][y].interactive = false;
     this.tileSprites[x][y].texture = this.selectedTileTexture;
 
@@ -191,6 +207,19 @@ export class MatrixRenderer {
   }
 
   private renderTile() {
+    const onBombClick = () => {
+      this.explodeHandlers.forEach(handler => {
+        handler();
+        this.mineMatrix.forEach(minePos => {
+          const { x, y } = minePos;
+          if (typeof this.mineSprites[x][y] !== 'number') {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            this.mineSprites[x][y].texture = this.bombTexture;
+          }
+        });
+      });
+    };
     const onSpriteHover = (sprite: Sprite) => () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
@@ -208,21 +237,50 @@ export class MatrixRenderer {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       if (sprite.flagged) return;
+      if (
+        this.remainValidTile ===
+        this.configs.size * this.configs.size - this.configs.mines
+      ) {
+        this.firstClickHandlers.forEach(handler => {
+          handler();
+        });
+      }
+      if (this.isBomb(x, y)) {
+        onBombClick();
+      }
       sprite.interactive = false;
       sprite.texture = this.selectedTileTexture;
       this.unfoldValidTile(x, y);
+      if (this.remainValidTile <= 0) {
+        this.winHandlers.forEach(handler => {
+          handler();
+        });
+      }
     };
     const onSpriteRightClick = (sprite: Sprite) => () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      if (!sprite.flagged) {
+      if (!sprite.flagged && this.remainBombs > 0) {
+        this.flagHandlers.forEach(handler => {
+          handler('flag');
+        });
         sprite.texture = this.flagTexture;
-      } else {
+        this.remainBombs--;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        sprite.flagged = true;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+      } else if (sprite.flagged) {
+        this.flagHandlers.forEach(handler => {
+          handler('unflag');
+        });
         sprite.texture = this.tileTexture;
+        this.remainBombs++;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        sprite.flagged = false;
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      sprite.flagged = !sprite.flagged;
     };
 
     const { size } = this.configs;
@@ -248,19 +306,6 @@ export class MatrixRenderer {
   }
 
   private renderMines() {
-    const onBombClick = (sprite: Sprite) => () => {
-      this.explodeHandlers.forEach(handler => {
-        handler(sprite);
-        this.mineMatrix.forEach(minePos => {
-          const { x, y } = minePos;
-          if (typeof this.mineSprites[x][y] !== 'number') {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            this.mineSprites[x][y].texture = this.bombTexture;
-          }
-        });
-      });
-    };
     const { size } = this.configs;
     const cellSize = this.containerSize / size;
     this.mineMatrix.forEach(minePos => {
@@ -270,14 +315,48 @@ export class MatrixRenderer {
       mineSprite.y = x * cellSize + GUTTER;
       mineSprite.width = cellSize - GUTTER;
       mineSprite.height = cellSize - GUTTER;
-      mineSprite.interactive = true;
-      mineSprite.on('click', onBombClick(mineSprite));
       this.mineSprites[x][y] = mineSprite;
     });
   }
 
-  public onExplode(handler: ExplodeHandler) {
-    this.explodeHandlers.push(handler);
+  private isBomb(x: number, y: number) {
+    return typeof this.mineSprites[x][y] !== 'number';
+  }
+
+  public on(eventType: MatrixEvent, handler: EventHandler<any, any>) {
+    switch (eventType) {
+      case 'bombclick':
+        this.explodeHandlers.push(handler);
+        break;
+      case 'flag':
+        this.flagHandlers.push(handler);
+        break;
+      case 'win':
+        this.winHandlers.push(handler);
+        break;
+      case 'firstclick':
+        this.firstClickHandlers.push(handler);
+        break;
+    }
+  }
+
+  public off(eventType: MatrixEvent, handler: EventHandler<any, any>) {
+    switch (eventType) {
+      case 'bombclick':
+        this.explodeHandlers = this.explodeHandlers.filter(h => h !== handler);
+        break;
+      case 'flag':
+        this.flagHandlers = this.flagHandlers.filter(h => h !== handler);
+        break;
+      case 'firstclick':
+        this.firstClickHandlers = this.firstClickHandlers.filter(
+          h => h !== handler
+        );
+        break;
+      case 'win':
+        this.winHandlers = this.winHandlers.filter(h => h !== handler);
+        break;
+    }
   }
 
   public render() {
@@ -317,5 +396,11 @@ export class MatrixRenderer {
         }
       });
     });
+  }
+
+  public destroy() {
+    this.containerRef.innerHTML = '';
+    this.app.stage.destroy();
+    this.app.destroy();
   }
 }

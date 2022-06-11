@@ -1,51 +1,72 @@
 import React from 'react';
-import { MatrixMode } from 'models';
-import { ExplodeHandler, MatrixRenderer } from './MatrixRenderer';
-import { useTypedSelector } from 'redux/helpers';
+import { MatrixMode, MineMatrix } from 'models';
+import { EventHandler, MatrixRenderer } from './MatrixRenderer';
 
 // Styles
 import styles from './styles.module.scss';
 
 export type MatrixGridProps = {
   mode: MatrixMode;
-  onLose?: ExplodeHandler;
+  matrixData: MineMatrix | null;
+  onLose?: EventHandler;
+  onWin?: EventHandler;
+  onFlag?: EventHandler<'flag' | 'unflag'>;
+  onFirstClick?: EventHandler;
 };
 
-const data = [
-  { x: 8, y: 0 },
-  { x: 6, y: 0 },
-  { x: 1, y: 5 },
-  { x: 4, y: 5 },
-  { x: 2, y: 0 },
-  { x: 6, y: 1 },
-  { x: 1, y: 0 },
-  { x: 1, y: 7 },
-  { x: 7, y: 4 },
-  { x: 1, y: 4 },
-];
-
-const MatrixGrid: React.FC<MatrixGridProps> = ({ mode, onLose = () => {} }) => {
+const MatrixGrid: React.FC<MatrixGridProps> = ({
+  mode,
+  matrixData,
+  onLose = () => {},
+  onFlag = () => {},
+  onWin = () => {},
+  onFirstClick = () => {},
+}) => {
   const renderer = React.useRef<MatrixRenderer | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const mineMatrix = useTypedSelector(
-    state => state.matrix.currentMatrix || data
-  );
-
   React.useLayoutEffect(() => {
-    if (!containerRef.current || !mineMatrix) return;
+    if (!containerRef.current || !matrixData) return () => {};
     renderer.current = new MatrixRenderer(
       mode,
       containerRef.current,
-      mineMatrix
+      matrixData
     );
-    const container = containerRef.current;
     renderer.current.render();
-    renderer.current.onExplode(() => {
+    return renderer.current.destroy;
+  }, [matrixData, mode]);
+
+  React.useEffect(() => {
+    if (!containerRef.current || !renderer.current || !matrixData)
+      return () => {};
+    const container = containerRef.current;
+    const matrix = renderer.current;
+    renderer.current;
+    renderer.current;
+    renderer.current;
+    // On Lose
+    matrix.on('bombclick', () => {
       container.style.pointerEvents = 'none';
     });
-    renderer.current.onExplode(onLose);
-  }, [mineMatrix, mode, onLose]);
+    matrix.on('bombclick', onLose);
+
+    // On Flagged
+    matrix.on('flag', onFlag);
+
+    // On Win
+    matrix.on('win', onWin);
+
+    // On First Click
+    matrix.on('firstclick', onFirstClick);
+
+    return () => {
+      matrix.off('bombclick', onLose);
+      matrix.off('flag', onFlag);
+      matrix.off('win', onWin);
+      matrix.off('firstclick', onFirstClick);
+      container.style.pointerEvents = 'unset';
+    };
+  }, [onFlag, onLose, onWin, matrixData, onFirstClick]);
 
   return <div ref={containerRef} className={styles.container} />;
 };

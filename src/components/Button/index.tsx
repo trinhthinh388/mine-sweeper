@@ -4,7 +4,10 @@ import { mergeClassname } from 'utils/helpers';
 // Styles
 import styles from './styles.module.scss';
 
-export type ButtonProps = React.HTMLAttributes<HTMLButtonElement>;
+export type ButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, ...props }, ref) => {

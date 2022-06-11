@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import { RoutePath } from './constant';
 
 // Styles
 import 'styles/global.scss';
@@ -21,8 +22,8 @@ const App: React.FC<AppProps> = () => {
       <React.Suspense>
         <Router>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/playground" element={<Playground />} />
+            <Route path={RoutePath.HOME} element={<Landing />} />
+            <Route path={RoutePath.PLAYGROUND} element={<Playground />} />
           </Routes>
         </Router>
       </React.Suspense>
