@@ -27,6 +27,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
 
   React.useLayoutEffect(() => {
     if (!containerRef.current || !matrixData) return () => {};
+    containerRef.current.removeAttribute('style');
     renderer.current = new MatrixRenderer(
       mode,
       containerRef.current,
@@ -44,10 +45,11 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
     renderer.current;
     renderer.current;
     renderer.current;
-    // On Lose
-    matrix.on('bombclick', () => {
+    const onBombClick = () => {
       container.style.pointerEvents = 'none';
-    });
+    };
+    // On Lose
+    matrix.on('bombclick', onBombClick);
     matrix.on('bombclick', onLose);
 
     // On Flagged
@@ -60,11 +62,11 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
     matrix.on('firstclick', onFirstClick);
 
     return () => {
+      matrix.off('bombclick', onBombClick);
       matrix.off('bombclick', onLose);
       matrix.off('flag', onFlag);
       matrix.off('win', onWin);
       matrix.off('firstclick', onFirstClick);
-      container.style.pointerEvents = 'unset';
     };
   }, [onFlag, onLose, onWin, matrixData, onFirstClick]);
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { mergeClassname } from 'utils/helpers';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MatrixMode } from 'models';
-import { MATRIX_CONFIGS } from 'constant';
+import { MATRIX_CONFIGS, RoutePath } from 'constant';
 import { useTypedDispatch, useTypedSelector } from 'redux/helpers';
 import { getMineMatrix } from 'redux/actions';
 
@@ -10,12 +10,13 @@ import { getMineMatrix } from 'redux/actions';
 import styles from './styles.module.scss';
 
 // Components
-import { MatrixGrid } from 'components';
+import { Button, MatrixGrid, Modal } from 'components';
 
 type FaceState = 'smile' | 'cry';
 
 const Playground: React.FC = () => {
   const dispatch = useTypedDispatch();
+  const navigateTo = useNavigate();
   const { search } = useLocation();
   const mode = new URLSearchParams(search).get('mode') || MatrixMode.EASY;
   const matrix = useTypedSelector(state => state.matrix.currentMatrix);
@@ -97,6 +98,10 @@ const Playground: React.FC = () => {
     return `${minutes}:${seconds}`;
   };
 
+  const toHomePage = () => {
+    navigateTo(RoutePath.HOME);
+  };
+
   React.useEffect(() => {
     if (matrix) return;
     dispatch(
@@ -135,21 +140,6 @@ const Playground: React.FC = () => {
         </div>
       </div>
 
-      {gameState.status === 'lose' && (
-        <h1 className={styles.result}>
-          Lose! <span>Uh oh! You stepped on a bomb.</span>
-        </h1>
-      )}
-      {gameState.status === 'win' && (
-        <h1 className={styles.result}>
-          Win!
-          <span>
-            You have unfolded all the valid tiles in{' '}
-            {parseTime(gameState.spendTime)}.
-          </span>
-        </h1>
-      )}
-
       {isLoading && (
         <h1 className={styles.result}>
           Please wait!
@@ -174,6 +164,26 @@ const Playground: React.FC = () => {
           />
         </div>
       )}
+      <Modal show={!!gameState.status}>
+        {gameState.status === 'lose' && (
+          <h1 className={styles.result}>
+            Lose! <span>Uh oh! You stepped on a bomb.</span>
+          </h1>
+        )}
+        {gameState.status === 'win' && (
+          <h1 className={styles.result}>
+            Win!
+            <span>
+              You have unfolded all the valid tiles in{' '}
+              {parseTime(gameState.spendTime)}.
+            </span>
+          </h1>
+        )}
+        <div className={styles.action}>
+          <Button onClick={reset}>New game</Button>
+          <Button onClick={toHomePage}>Back to Home</Button>
+        </div>
+      </Modal>
     </div>
   );
 };
