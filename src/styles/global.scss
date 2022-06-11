@@ -1,6 +1,7 @@
 html {
   font-size: 16px;
   background-color: #1099bb;
+  min-width: 700px;
 }
 
 * {
@@ -96,7 +97,6 @@ video {
   margin: 0;
   padding: 0;
   border: 0;
-  font-size: 100%;
   vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */

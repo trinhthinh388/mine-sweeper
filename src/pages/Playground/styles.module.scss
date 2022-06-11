@@ -1,14 +1,21 @@
+@import 'src/styles/variables';
+
 .container {
-  padding: 3rem;
+  padding: 1rem;
 
   .gridContainer {
     width: 500px;
     height: 500px;
     margin: 0 auto;
 
-    &.hardGrid {
-      width: 800px;
-      height: 800px;
+    @include tablet {
+      width: 700px;
+      height: 700px;
+    }
+
+    @include desktop {
+      width: 700px;
+      height: 700px;
     }
   }
   .taskbar {
@@ -20,16 +27,24 @@
     .face {
       width: 38px;
       height: 38px;
-      margin: 0 3rem;
+      margin: 0 1rem;
       img {
         width: 100%;
         height: auto;
+      }
+
+      @include tablet {
+        margin: 0 3rem;
+      }
+
+      @include desktop {
+        margin: 0 3rem;
       }
     }
 
     .stats {
       display: flex;
-      width: 8rem;
+      width: 7rem;
       padding: 0 0.7rem 0 0;
       align-items: center;
       justify-content: center;
@@ -46,8 +61,16 @@
       }
 
       .value {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-top: 0.3rem;
+
+        @include tablet {
+          font-size: 2rem;
+        }
+
+        @include desktop {
+          font-size: 2rem;
+        }
       }
     }
   }

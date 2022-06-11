@@ -55,17 +55,20 @@ export class MatrixRenderer {
   private winHandlers: Array<EventHandler> = [];
   private firstClickHandlers: Array<EventHandler> = [];
 
-  constructor(mode: MatrixMode, containerEl: Element, _mineMatrix: MineMatrix) {
-    const { width, height } = containerEl.getBoundingClientRect();
+  constructor(
+    mode: MatrixMode,
+    containerEl: HTMLElement,
+    _mineMatrix: MineMatrix
+  ) {
+    const { width } = containerEl.getBoundingClientRect();
     this.containerSize = width;
     this.containerRef = containerEl;
     this.configs = MATRIX_CONFIGS[mode];
 
     // Application
     this.app = new Application({
-      width,
-      height,
-      resolution: window.devicePixelRatio || 1,
+      width: this.containerSize,
+      height: this.containerSize,
       backgroundColor: BACKGROUND_COLOR,
     });
 
@@ -297,8 +300,8 @@ export class MatrixRenderer {
         // Events
         sprite.on('pointerover', onSpriteHover(sprite));
         sprite.on('pointerout', onSpriteOut(sprite));
-        sprite.on('click', onSpriteLeftClick(sprite, i, j));
-        sprite.on('rightclick', onSpriteRightClick(sprite));
+        sprite.on('pointerup', onSpriteLeftClick(sprite, i, j));
+        sprite.on('rightup', onSpriteRightClick(sprite));
         row.push(sprite);
       }
       this.tileSprites.push(row);

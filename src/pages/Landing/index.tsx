@@ -31,9 +31,7 @@ const Landing: React.FC = () => {
 
   return (
     <div ref={containerRef} className={styles.container}>
-      <h1 className={styles.title}>
-        Mine<span>Sweeper</span>
-      </h1>
+      <h1 className={styles.title}>MineSweeper</h1>
 
       <div className={styles.action}>
         {!isLoading && !isPending && !showDifficulty && (

@@ -1,5 +1,4 @@
 import React from 'react';
-import { mergeClassname } from 'utils/helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MatrixMode } from 'models';
 import { MATRIX_CONFIGS, RoutePath } from 'constant';
@@ -148,12 +147,7 @@ const Playground: React.FC = () => {
       )}
 
       {!isLoading && (
-        <div
-          className={mergeClassname(
-            styles.gridContainer,
-            mode === 'hard' && styles.hardGrid
-          )}
-        >
+        <div className={styles.gridContainer}>
           <MatrixGrid
             mode={mode === 'easy' ? MatrixMode.EASY : MatrixMode.HARD}
             matrixData={matrix}

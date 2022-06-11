@@ -1,3 +1,5 @@
+@import 'src/styles/variables';
+
 .container {
   position: relative;
   display: flex;
@@ -33,11 +35,15 @@
     }
   }
   .title {
-    margin: 17rem 0 2rem 0;
-    font-size: 5rem;
+    margin: 17rem 0 2rem 1rem;
+    font-size: 3rem;
     text-transform: uppercase;
     color: black;
-    letter-spacing: 15px;
+    letter-spacing: 1rem;
+
+    @include desktop {
+      font-size: 5rem;
+    }
   }
   .bomb {
     position: fixed;
