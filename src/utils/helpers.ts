@@ -1,9 +1,14 @@
-export const mergeClassname = (...args: (string | undefined)[]): string => {
+export const mergeClassname = (...args: any[]): string => {
   const cleanClasses = args.map(classname => {
-    if (classname === undefined || classname === null) return '';
+    if (
+      classname === undefined ||
+      classname === null ||
+      (typeof classname === 'number' && isNaN(classname))
+    )
+      return '';
     return classname;
   });
-  return cleanClasses.join(' ');
+  return cleanClasses.join(' ').trim();
 };
 
 export const generateSearchParams = (
