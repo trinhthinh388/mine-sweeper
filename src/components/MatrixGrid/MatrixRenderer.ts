@@ -13,13 +13,12 @@ import { MatrixMode, MineMatrix } from 'models';
 
 const BACKGROUND_COLOR = 0x000000;
 const GUTTER = 1;
-const TEXT_OFFSET = 6;
 
 export type EventHandler<P = [undefined?], T = void> = (...args: P[]) => T;
 export type MatrixEvent = 'bombclick' | 'win' | 'flag' | 'firstclick';
 
 export class MatrixRenderer {
-  private app: Application;
+  public app: Application;
 
   /**
    * Containers
@@ -309,12 +308,12 @@ export class MatrixRenderer {
     }
   }
 
-  private renderMines() {
+  private renderMines(reveal = false) {
     const { size } = this.configs;
     const cellSize = this.containerSize / size;
     this.mineMatrix.forEach(minePos => {
       const { x, y } = minePos;
-      const mineSprite = new Sprite();
+      const mineSprite = new Sprite(reveal ? this.bombTexture : undefined);
       mineSprite.x = y * cellSize + GUTTER;
       mineSprite.y = x * cellSize + GUTTER;
       mineSprite.width = cellSize - GUTTER;
@@ -363,13 +362,16 @@ export class MatrixRenderer {
     }
   }
 
-  public render() {
+  public render(reveal = false) {
     const cellSize = this.containerSize / this.configs.size;
     this.renderTile();
-    this.renderMines();
+    this.renderMines(reveal);
     this.calculateNearbyBombs();
     this.tileSprites.forEach(row => {
       row.forEach(tile => {
+        if (reveal) {
+          tile.texture = this.selectedTileTexture;
+        }
         this.tileContainer.addChild(tile);
       });
     });
@@ -382,7 +384,9 @@ export class MatrixRenderer {
               fontFamily: 'Pixel',
               fontSize: cellSize / 2,
               align: 'center',
-              fill: 0xffffff00,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              fill: reveal ? MATRIX_COLORS[mine] : 0xffffff00,
             })
           );
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -390,7 +394,7 @@ export class MatrixRenderer {
           textSprite.bombs = mine;
 
           textSprite.position.x =
-            j * cellSize + GUTTER + cellSize / 2 - cellSize / 4 + TEXT_OFFSET;
+            j * cellSize + GUTTER + cellSize / 2 - cellSize / 4 + cellSize / 8;
           textSprite.position.y =
             i * cellSize + GUTTER + cellSize / 2 - cellSize / 4;
           this.mineContainer.addChild(textSprite);

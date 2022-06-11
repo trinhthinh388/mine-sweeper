@@ -5,17 +5,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100%;
   min-height: 100vh;
   overflow: hidden;
   > canvas {
+    pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;
     z-index: -1;
   }
 
+  .card {
+    padding: 10rem 5rem;
+  }
+
   .loadingText {
     font-size: 2rem;
+    background-color: grey;
   }
   .action {
     position: relative;
@@ -29,17 +37,19 @@
     }
 
     h2 {
+      background-color: grey;
       font-size: 1.5rem;
-      color: black;
+      color: #ffffff;
       letter-spacing: 2px;
     }
   }
   .title {
-    margin: 17rem 0 2rem 1rem;
     font-size: 3rem;
     text-transform: uppercase;
-    color: black;
+    color: white;
     letter-spacing: 1rem;
+    background-color: grey;
+    margin-bottom: 2rem;
 
     @include desktop {
       font-size: 5rem;
