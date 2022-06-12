@@ -6,7 +6,6 @@ import { RoutePath } from './constant';
 
 // Styles
 import 'styles/global.scss';
-import 'styles/font.scss';
 
 // Pages
 const Landing = React.lazy(() => import('./pages/Landing'));
