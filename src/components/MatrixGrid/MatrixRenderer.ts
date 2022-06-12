@@ -342,6 +342,13 @@ export class MatrixRenderer {
   }
 }
 
+/**
+ * increaseTileWeight will find the proper tile then execute the callback with the founded tile's position.
+ * @param x the x position of the bomb
+ * @param y the y position of the bomb
+ * @param len the length of the grid
+ * @param callback the function to perform any action when found proper tile.
+ */
 export function increaseTileWeight(
   x: number,
   y: number,
@@ -369,6 +376,15 @@ export function increaseTileWeight(
   if (y + 1 < len && x + 1 < len) increase(x + 1, y + 1);
 }
 
+/**
+ * searchNearbyBomb will search every valid tiles and only return if the callback returns false.
+ * Muse mark input tiles as visited inside callback.
+ * @param arr
+ * @param x
+ * @param y
+ * @param callback
+ * @returns
+ */
 export function searchNearbyBomb(
   arr: Array<Array<any>>,
   x: number,
