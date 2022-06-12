@@ -12,6 +12,7 @@ export type MatrixGridProps = {
   onWin?: EventHandler;
   onFlag?: EventHandler<'flag' | 'unflag'>;
   onFirstClick?: EventHandler;
+  screenshotContainer?: HTMLElement | null;
 };
 
 const MatrixGrid: React.FC<MatrixGridProps> = ({
@@ -21,6 +22,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
   onFlag = () => {},
   onWin = () => {},
   onFirstClick = () => {},
+  screenshotContainer = null,
 }) => {
   const renderer = React.useRef<MatrixRenderer | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -47,6 +49,9 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
     renderer.current;
     const onBombClick = () => {
       container.style.pointerEvents = 'none';
+      if (screenshotContainer && renderer.current) {
+        renderer.current.takeScreenshot(screenshotContainer);
+      }
     };
     // On Lose
     matrix.on('bombclick', onBombClick);
@@ -68,7 +73,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({
       matrix.off('win', onWin);
       matrix.off('firstclick', onFirstClick);
     };
-  }, [onFlag, onLose, onWin, matrixData, onFirstClick]);
+  }, [onFlag, onLose, onWin, matrixData, onFirstClick, screenshotContainer]);
 
   return <div ref={containerRef} className={styles.container} />;
 };

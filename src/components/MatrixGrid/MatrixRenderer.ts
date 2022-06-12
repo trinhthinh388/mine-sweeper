@@ -111,6 +111,7 @@ export class MatrixRenderer {
     this.unfoldValidTile = this.unfoldValidTile.bind(this);
     this.isBomb = this.isBomb.bind(this);
     this.destroy = this.destroy.bind(this);
+    this.takeScreenshot = this.takeScreenshot.bind(this);
   }
 
   private unfoldValidTile(x: number, y: number) {
@@ -339,6 +340,17 @@ export class MatrixRenderer {
     this.containerRef.innerHTML = '';
     this.app.stage.destroy();
     this.app.destroy();
+  }
+
+  public takeScreenshot(imageContainer: HTMLElement = window.document.body) {
+    setTimeout(() => {
+      const image = this.app.renderer.plugins.extract.image(this.app.stage);
+      if (image.length) {
+        imageContainer.appendChild(image.pop());
+        return;
+      }
+      imageContainer.appendChild(image);
+    }, 100);
   }
 }
 

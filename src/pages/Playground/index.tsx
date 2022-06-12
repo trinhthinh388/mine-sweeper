@@ -22,6 +22,7 @@ const Playground: React.FC = () => {
   const matrix = useTypedSelector(state => state.matrix.currentMatrix);
   const isLoading = useTypedSelector(state => state.matrix.loading);
   const intervalId = React.useRef<number>(0);
+  const screenshotContainer = React.useRef<HTMLDivElement | null>(null);
   const [gameState, setGameState] = React.useState<{
     spendTime: number;
     face: FaceState;
@@ -160,6 +161,7 @@ const Playground: React.FC = () => {
             onFlag={onFlag}
             onWin={onWin}
             onFirstClick={tick}
+            screenshotContainer={screenshotContainer.current}
           />
         </div>
       )}
@@ -178,6 +180,7 @@ const Playground: React.FC = () => {
             </span>
           </h1>
         )}
+        <div className={styles.screenshot} ref={screenshotContainer} />
         <div className={styles.action}>
           <Button onClick={reset}>New game</Button>
           <Button onClick={toHomePage}>Back to Home</Button>
