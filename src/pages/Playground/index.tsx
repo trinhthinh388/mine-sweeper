@@ -88,6 +88,9 @@ const Playground: React.FC = () => {
           : MATRIX_CONFIGS[MatrixMode.HARD].mines,
     }));
     clearInterval(intervalId.current);
+    if (screenshotContainer.current) {
+      screenshotContainer.current.innerHTML = '';
+    }
     dispatch(
       getMineMatrix(
         mode === MatrixMode.EASY ? MatrixMode.EASY : MatrixMode.HARD
