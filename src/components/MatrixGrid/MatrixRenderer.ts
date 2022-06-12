@@ -10,6 +10,7 @@ import {
 } from 'pixi.js';
 import { MATRIX_COLORS, MATRIX_CONFIGS } from 'constant';
 import { MatrixMode, MineMatrix } from 'models';
+import { isSprite } from 'utils/helpers';
 
 const BACKGROUND_COLOR = 0x000000;
 const GUTTER = 1;
@@ -46,7 +47,7 @@ export class MatrixRenderer {
   private containerRef: Element;
   private tileSprites: Array<Array<Sprite>> = [];
   private mineSprites: Array<Array<Sprite | number>> = [];
-  private textSprites: Array<Array<Text | null>> = [];
+  private textSprites: Array<Array<Text>> = [];
 
   // Handlers
   private explodeHandlers: Array<EventHandler> = [];
@@ -89,10 +90,10 @@ export class MatrixRenderer {
       this.configs.size * this.configs.size - this.configs.mines;
     for (let i = 0; i < this.configs.size; i++) {
       const row: Array<number> = [];
-      const rowTextSprite: Array<null> = [];
+      const rowTextSprite: Array<Text> = [];
       for (let j = 0; j < this.configs.size; j++) {
         row.push(0);
-        rowTextSprite.push(null);
+        rowTextSprite.push(new Text());
       }
       this.mineSprites.push(row);
       this.textSprites.push(rowTextSprite);
@@ -106,7 +107,6 @@ export class MatrixRenderer {
     // Binding
     this.renderTile = this.renderTile.bind(this);
     this.calculateNearbyBombs = this.calculateNearbyBombs.bind(this);
-    this.increaseTileWeight = this.increaseTileWeight.bind(this);
     this.calculateNearbyBombs = this.calculateNearbyBombs.bind(this);
     this.unfoldValidTile = this.unfoldValidTile.bind(this);
     this.isBomb = this.isBomb.bind(this);
@@ -114,86 +114,31 @@ export class MatrixRenderer {
   }
 
   private unfoldValidTile(x: number, y: number) {
-    const len = this.mineSprites.length;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (this.tileSprites[x][y].flagged) return;
-    if (typeof this.mineSprites[x][y] !== 'number') return;
-    if (
-      typeof this.mineSprites[x][y] === 'number' &&
-      this.mineSprites[x][y] > 0
-    ) {
-      this.mineSprites[x][y] = -1;
+    const callback = (dx: number, dy: number): boolean => {
+      if (this.tileSprites[dx][dy].flagged) return false;
+      if (typeof this.mineSprites[dx][dy] !== 'number') return false;
+      if (
+        typeof this.mineSprites[dx][dy] === 'number' &&
+        this.mineSprites[dx][dy] > 0
+      ) {
+        this.mineSprites[dx][dy] = -1;
+        this.remainValidTile--;
+        this.tileSprites[dx][dy].interactive = false;
+        this.tileSprites[dx][dy].texture = this.selectedTileTexture;
+        if (this.textSprites[dx][dy].bombs > 0) {
+          this.textSprites[dx][dy].style.fill =
+            MATRIX_COLORS[this.textSprites[dx][dy].bombs];
+        }
+        return false;
+      }
+
+      this.mineSprites[dx][dy] = -1;
       this.remainValidTile--;
-      this.tileSprites[x][y].interactive = false;
-      this.tileSprites[x][y].texture = this.selectedTileTexture;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      if (this.textSprites[x][y].bombs > 0) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        this.textSprites[x][y].style.fill =
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          MATRIX_COLORS[this.textSprites[x][y].bombs];
-      }
-      return;
-    }
-
-    this.mineSprites[x][y] = -1;
-    this.remainValidTile--;
-    this.tileSprites[x][y].interactive = false;
-    this.tileSprites[x][y].texture = this.selectedTileTexture;
-
-    // // Top
-    if (x - 1 >= 0 && this.mineSprites[x - 1][y] !== -1)
-      this.unfoldValidTile(x - 1, y);
-    // Right
-    if (y + 1 < len && this.mineSprites[x][y + 1] !== -1)
-      this.unfoldValidTile(x, y + 1);
-    // Bottom
-    if (x + 1 < len && this.mineSprites[x + 1][y] !== -1)
-      this.unfoldValidTile(x + 1, y);
-    // Left
-    if (y - 1 >= 0 && this.mineSprites[x][y - 1] !== -1)
-      this.unfoldValidTile(x, y - 1);
-    // Top Left
-    if (y - 1 >= 0 && x - 1 >= 0 && this.mineSprites[x - 1][y - 1] !== -1)
-      this.unfoldValidTile(x - 1, y - 1);
-    // Top Right
-    if (y + 1 < len && x - 1 >= 0 && this.mineSprites[x - 1][y + 1] !== -1)
-      this.unfoldValidTile(x - 1, y + 1);
-    // Bottom Left
-    if (y - 1 >= 0 && x + 1 < len && this.mineSprites[x + 1][y - 1] !== -1)
-      this.unfoldValidTile(x + 1, y - 1);
-    // Bottom Right
-    if (y + 1 < len && x + 1 < len && this.mineSprites[x + 1][y + 1] !== -1)
-      this.unfoldValidTile(x + 1, y + 1);
-  }
-
-  private increaseTileWeight(x: number, y: number) {
-    const increase = (dx: number, dy: number) => {
-      if (typeof this.mineSprites[dx][dy] === 'number') {
-        (this.mineSprites[dx][dy] as number)++;
-      }
+      this.tileSprites[dx][dy].interactive = false;
+      this.tileSprites[dx][dy].texture = this.selectedTileTexture;
+      return true;
     };
-    // Top
-    if (x - 1 >= 0) increase(x - 1, y);
-    // Bottom
-    if (x + 1 < this.configs.size) increase(x + 1, y);
-    // Right
-    if (y + 1 < this.configs.size) increase(x, y + 1);
-    // Left
-    if (y - 1 >= 0) increase(x, y - 1);
-    // Top Left
-    if (y - 1 >= 0 && x - 1 >= 0) increase(x - 1, y - 1);
-    // Top Right
-    if (y + 1 < this.configs.size && x - 1 >= 0) increase(x - 1, y + 1);
-    // Bottom Left
-    if (y - 1 >= 0 && x + 1 < this.configs.size) increase(x + 1, y - 1);
-    // Bottom Right
-    if (y + 1 < this.configs.size && x + 1 < this.configs.size)
-      increase(x + 1, y + 1);
+    searchNearbyBomb(this.mineSprites, x, y, callback);
   }
 
   private calculateNearbyBombs() {
@@ -204,7 +149,11 @@ export class MatrixRenderer {
      */
     this.mineMatrix.forEach(minePos => {
       const { x, y } = minePos;
-      this.increaseTileWeight(x, y);
+      increaseTileWeight(x, y, this.configs.size, (dx: number, dy: number) => {
+        if (typeof this.mineSprites[dx][dy] === 'number') {
+          (this.mineSprites[dx][dy] as number)++;
+        }
+      });
     });
   }
 
@@ -215,29 +164,21 @@ export class MatrixRenderer {
         this.mineMatrix.forEach(minePos => {
           const { x, y } = minePos;
           if (typeof this.mineSprites[x][y] !== 'number') {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            this.mineSprites[x][y].texture = this.bombTexture;
+            (this.mineSprites[x][y] as Sprite).texture = this.bombTexture;
           }
         });
       });
     };
     const onSpriteHover = (sprite: Sprite) => () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       if (sprite.flagged) return;
       sprite.texture = this.hoverTileTexture;
     };
     const onSpriteOut = (sprite: Sprite) => () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       if (sprite.flagged) return;
       sprite.texture = this.tileTexture;
     };
 
     const onSpriteLeftClick = (sprite: Sprite, x: number, y: number) => () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       if (sprite.flagged) return;
       if (
         this.remainValidTile ===
@@ -260,27 +201,19 @@ export class MatrixRenderer {
       }
     };
     const onSpriteRightClick = (sprite: Sprite) => () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       if (!sprite.flagged && this.remainBombs > 0) {
         this.flagHandlers.forEach(handler => {
           handler('flag');
         });
         sprite.texture = this.flagTexture;
         this.remainBombs--;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         sprite.flagged = true;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
       } else if (sprite.flagged) {
         this.flagHandlers.forEach(handler => {
           handler('unflag');
         });
         sprite.texture = this.tileTexture;
         this.remainBombs++;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         sprite.flagged = false;
       }
     };
@@ -323,7 +256,7 @@ export class MatrixRenderer {
   }
 
   private isBomb(x: number, y: number) {
-    return typeof this.mineSprites[x][y] !== 'number';
+    return isSprite(this.mineSprites[x][y]);
   }
 
   public on(eventType: MatrixEvent, handler: EventHandler<any, any>) {
@@ -384,13 +317,9 @@ export class MatrixRenderer {
               fontFamily: 'Pixel',
               fontSize: cellSize / 2,
               align: 'center',
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-expect-error
               fill: reveal ? MATRIX_COLORS[mine] : 0xffffff00,
             })
           );
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           textSprite.bombs = mine;
 
           textSprite.position.x =
@@ -399,7 +328,7 @@ export class MatrixRenderer {
             i * cellSize + GUTTER + cellSize / 2 - cellSize / 4;
           this.mineContainer.addChild(textSprite);
           this.textSprites[i][j] = textSprite;
-        } else if (typeof mine !== 'number') {
+        } else if (isSprite(mine)) {
           this.mineContainer.addChild(mine);
         }
       });
@@ -411,4 +340,65 @@ export class MatrixRenderer {
     this.app.stage.destroy();
     this.app.destroy();
   }
+}
+
+export function increaseTileWeight(
+  x: number,
+  y: number,
+  len: number,
+  callback: (dx: number, dy: number) => any
+) {
+  const increase = (dx: number, dy: number) => {
+    callback(dx, dy);
+  };
+  // Top
+  if (x - 1 >= 0) increase(x - 1, y);
+  // Bottom
+  if (x + 1 < len) increase(x + 1, y);
+  // Right
+  if (y + 1 < len) increase(x, y + 1);
+  // Left
+  if (y - 1 >= 0) increase(x, y - 1);
+  // Top Left
+  if (y - 1 >= 0 && x - 1 >= 0) increase(x - 1, y - 1);
+  // Top Right
+  if (y + 1 < len && x - 1 >= 0) increase(x - 1, y + 1);
+  // Bottom Left
+  if (y - 1 >= 0 && x + 1 < len) increase(x + 1, y - 1);
+  // Bottom Right
+  if (y + 1 < len && x + 1 < len) increase(x + 1, y + 1);
+}
+
+export function searchNearbyBomb(
+  arr: Array<Array<any>>,
+  x: number,
+  y: number,
+  callback: (dx: number, dy: number) => boolean
+) {
+  const len = arr.length;
+  if (!callback(x, y)) return;
+  // // Top
+  if (x - 1 >= 0 && arr[x - 1][y] !== -1)
+    searchNearbyBomb(arr, x - 1, y, callback);
+  // Right
+  if (y + 1 < len && arr[x][y + 1] !== -1)
+    searchNearbyBomb(arr, x, y + 1, callback);
+  // Bottom
+  if (x + 1 < len && arr[x + 1][y] !== -1)
+    searchNearbyBomb(arr, x + 1, y, callback);
+  // Left
+  if (y - 1 >= 0 && arr[x][y - 1] !== -1)
+    searchNearbyBomb(arr, x, y - 1, callback);
+  // Top Left
+  if (y - 1 >= 0 && x - 1 >= 0 && arr[x - 1][y - 1] !== -1)
+    searchNearbyBomb(arr, x - 1, y - 1, callback);
+  // Top Right
+  if (y + 1 < len && x - 1 >= 0 && arr[x - 1][y + 1] !== -1)
+    searchNearbyBomb(arr, x - 1, y + 1, callback);
+  // Bottom Left
+  if (y - 1 >= 0 && x + 1 < len && arr[x + 1][y - 1] !== -1)
+    searchNearbyBomb(arr, x + 1, y - 1, callback);
+  // Bottom Right
+  if (y + 1 < len && x + 1 < len && arr[x + 1][y + 1] !== -1)
+    searchNearbyBomb(arr, x + 1, y + 1, callback);
 }

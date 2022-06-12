@@ -11,7 +11,7 @@ export const MATRIX_CONFIGS: MatrixConfig = {
   },
 };
 
-export const MATRIX_COLORS: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, number> = {
+export const MATRIX_COLORS: Record<number, number> = {
   1: 0x0000ff,
   2: 0x008000,
   3: 0xff0000,

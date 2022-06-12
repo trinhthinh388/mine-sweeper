@@ -1,3 +1,5 @@
+import { Sprite } from 'pixi.js';
+
 export const mergeClassname = (...args: any[]): string => {
   const cleanClasses = args.map(classname => {
     if (
@@ -26,3 +28,7 @@ export const generateSearchParams = (
   const searchParams = new URLSearchParams(obj);
   return searchParams.toString();
 };
+
+export function isSprite(sprite: any): sprite is Sprite {
+  return typeof sprite.isSprite === 'boolean' && sprite.isSprite;
+}
