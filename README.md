@@ -37,7 +37,7 @@ To do that we will iterate through the mines position array and for each mine in
 After getting the surround mines for every cell, we can render it on the canvas. In my codebase, I use 2 array to represent for tiles and mines grid.
 
 - So if we click a mine then the game will stop.
-- If we click a empty cell, mark it as visited and we will search other cells by using BFS and whenever we hit the first positive number cell then we will do the same thing like below step.
+- If we click a empty cell, mark it as visited and we will search other cells by using DFS and whenever we hit the first positive number cell then we will do the same thing like below step.
 - If we click the number cell, mark it as visited and exit.
 
 To identify when win or lose, I will use a count variable. This variables will be used to count how many valid cells left.
